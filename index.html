@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0a1222">
+  <meta name="description" content="Sản phẩm nghiên cứu khoa học học sinh năm 2026 - Trường THPT chuyên Nguyễn Thiện Thành. Bản đồ thử nghiệm 12 địa điểm du lịch Trà Vinh.">
+  <title>Bản đồ số du lịch Trà Vinh | NCKH 2026</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+  :root{--surface:#0a1322;--panel:#101e32;--panel-2:#162741;--line:#263a56;--ink:#eff6ff;--soft:#a6bacf;--aqua:#54dacb;--blue:#9fbcff;--r:18px}
+  *{box-sizing:border-box}
+  html,body{margin:0;width:100%;height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--surface);color:var(--ink)}
+  body{overflow:hidden}
+  .app{height:100vh;height:100dvh;display:grid;grid-template-rows:76px 1fr;min-height:0}
+  a{color:inherit}
+  .topbar{z-index:1005;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 24px;background:linear-gradient(95deg,#0a1322,#132540);border-bottom:1px solid #33455e;box-shadow:0 8px 24px #0003}
+  .brand{display:flex;align-items:center;gap:13px;min-width:0}
+  .brandlogo{display:grid;place-items:center;width:45px;height:45px;background:linear-gradient(135deg,#27bfad,#5d9dee);border:1px solid #7ffdec55;border-radius:13px;font-size:25px;flex:none;box-shadow:0 8px 25px #2adac025}
+  .brandtitle{font-size:18px;font-weight:780;line-height:1.3;letter-spacing:.1px}
+  .brandmeta{font-size:11px;color:var(--soft);margin-top:4px}
+  .school{text-align:right;font-size:12px;font-weight:670;color:#ddf4ff;line-height:1.6}
+  .school small{display:block;color:var(--aqua);font-weight:500;letter-spacing:.35px}
+  .body{position:relative;display:grid;grid-template-columns:354px 1fr;min-height:0}
+  .sidebar{background:linear-gradient(180deg,#0f1e32,#0a1728);z-index:605;display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line)}
+  .sidehead{padding:20px 17px 12px;border-bottom:1px solid var(--line)}
+  .eyebrow{color:#53decf;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+  .sidehead h2{font-size:19px;margin:8px 0 9px;line-height:1.4}
+  .sidehead p{font-size:12px;color:var(--soft);line-height:1.5;margin:0 0 14px}
+  .searchrow{display:flex;align-items:center;gap:9px;background:#172840;border:1px solid #344860;padding:11px 13px;border-radius:12px}
+  .searchrow span{color:#9fb5d1}
+  .searchrow input{border:none;background:transparent;color:var(--ink);font-size:13px;min-width:0;outline:none;flex:1}
+  .searchrow input::placeholder{color:#8195ac}
+  .group-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+  .chip{border:1px solid #2e4561;background:#192d47;color:#cbdef6;text-align:left;font-size:12px;border-radius:10px;padding:9px 10px;cursor:pointer;display:flex;align-items:center;gap:7px;min-width:0}
+  .chip:hover{background:#23405e}
+  .chip.active{background:#184f59;border-color:#5de9d2;color:#eafffc}
+  .mini-dot{width:8px;height:8px;flex:none;border-radius:50%;background:var(--dot,#58d8d0)}
+  .points-meta{display:flex;justify-content:space-between;align-items:center;padding:13px 17px 8px;font-size:11px;color:var(--soft)}
+  .pointslist{overflow-y:auto;min-height:0;padding:0 10px 14px;scrollbar-color:#34516d transparent;scrollbar-width:thin}
+  .location{display:flex;gap:10px;align-items:flex-start;padding:12px 10px;margin:0 0 7px;background:#14253c;border:1px solid #273d59;border-radius:13px;cursor:pointer;transition:background .15s,transform .15s;width:100%;text-align:left;color:inherit}
+  .location:hover{background:#1b3453;transform:translateY(-1px)}
+  .location.selected{background:#193f53;border-color:#36bfb1}
+  .pin-small{display:grid;place-items:center;flex:none;width:38px;height:38px;border:2px solid var(--group);background:#0a1425;border-radius:12px;font-size:20px}
+  .loc-body{flex:1;min-width:0}
+  .locid{color:#97b3cc;font-size:10px;font-weight:700;margin:1px 0 3px}
+  .loc-title{font-size:13px;font-weight:760;line-height:1.4}
+  .locsub{color:var(--soft);font-size:11px;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}
+  .sidenote{border-top:1px solid #283c53;color:#829cb5;font-size:10px;line-height:1.5;padding:12px 17px}
+  .mapshell{position:relative;min-width:0;min-height:0;background:#11263a}
+  #map{position:absolute;inset:0;z-index:1;background:#14273a}
+  #map.dark .leaflet-tile-pane{filter:invert(.94) hue-rotate(188deg) saturate(.6) brightness(.75) contrast(1.05)}
+  .leaflet-container{font:inherit}
+  .leaflet-control-attribution{font-size:10px!important;background:#ffffffe8!important}
+  .map-toolbar{position:absolute;z-index:600;top:18px;left:20px;right:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;pointer-events:none}
+  .map-toolbar>*{pointer-events:auto}
+  .filter-card{display:flex;align-items:center;gap:10px;background:#0b1b2fed;border:1px solid #7991a055;border-radius:12px;padding:9px 12px;box-shadow:0 15px 25px #0005;backdrop-filter:blur(10px)}
+  .filter-card label{font-size:11px;color:#9bbed4;font-weight:650;white-space:nowrap}
+  .filter-card select{background:transparent;border:none;color:white;font-weight:650;font-size:13px;min-width:192px;max-width:325px;outline:none;cursor:pointer}
+  .filter-card option{color:#142035;background:white}
+  .toolbar-actions{display:flex;gap:8px}
+  .circle-button{width:41px;height:41px;border-radius:12px;border:1px solid #7d98af66;background:#102135ef;color:#f5fbff;cursor:pointer;display:grid;place-items:center;font-size:19px;box-shadow:0 8px 16px #0005}
+  .circle-button:hover{background:#245073}
+  .map-badge{position:absolute;z-index:590;left:20px;bottom:34px;max-width:440px;background:#0d2035e8;border:1px solid #49627b7d;border-radius:12px;padding:12px 14px;box-shadow:0 8px 30px #0003;pointer-events:none}
+  .map-badge strong{font-size:13px}
+  .map-badge p{font-size:11px;color:#bed0e1;line-height:1.5;margin:5px 0 0}
+  .marker-wrap{background:transparent;border:none}
+  .tour-pin{position:relative;display:flex;justify-content:center;align-items:center;width:42px;height:42px;background:#0c1930;border:2.5px solid var(--group);border-radius:50%;box-shadow:0 0 0 4px #07132466,0 7px 16px #0008;font-size:22px;transform-origin:center bottom;transition:transform .12s}
+  .tour-pin:after{content:"";position:absolute;bottom:-6px;width:9px;height:9px;background:var(--group);transform:rotate(45deg);z-index:-1;border-radius:1px}
+  .tour-pin:hover{transform:scale(1.15)}
+  .leaflet-popup-content-wrapper{background:#111f33;color:#e7f2fe;border:1px solid #3a5871;border-radius:15px;box-shadow:0 16px 38px #0019}
+  .leaflet-popup-content{margin:15px;max-width:min(300px,70vw)!important;width:300px!important}
+  .leaflet-popup-tip{background:#111f33}
+  .leaflet-container a.leaflet-popup-close-button{color:#b7d4e6!important}
+  .popmeta{color:#5de7cb;font-weight:750;letter-spacing:.3px;font-size:10px;margin-bottom:7px}
+  .poptitle{font-size:16px;font-weight:800;line-height:1.4;margin-right:14px}
+  .popimg{width:100%;max-height:150px;object-fit:cover;border-radius:9px;margin-top:10px}
+  .popdesc{font-size:12px;max-height:156px;overflow-y:auto;line-height:1.62;margin:10px 0;color:#c7d8e9;white-space:pre-line}
+  .popnote{font-size:10px;color:#89a4bc;margin:9px 0}
+  .popbtn{display:block;text-decoration:none!important;text-align:center;background:#28bba9;color:#071c21!important;border-radius:9px;font-weight:800;font-size:12px;padding:11px 9px;margin-top:10px}
+  .popbtn:hover{background:#6fe1d0}
+  .empty{padding:24px;text-align:center;color:#a5bcd0;font-size:12px}
+  .mobile-toggle{display:none}
+  @media(max-width:820px){
+    .app{grid-template-rows:70px 1fr}
+    .topbar{padding:9px 13px}
+    .brandlogo{width:39px;height:39px;font-size:22px}
+    .brandtitle{font-size:14px}
+    .brandmeta{font-size:9px}
+    .school{display:none}
+    .body{display:block}
+    .mapshell{position:absolute;inset:0}
+    .sidebar{position:absolute;z-index:900;left:12px;right:12px;bottom:12px;max-height:55%;border:1px solid #385578;border-radius:16px;box-shadow:0 16px 45px #0008;transform:translateY(calc(100% + 20px));transition:transform .2s}
+    .sidebar.mobile-open{transform:translateY(0)}
+    .sidehead{padding:14px}
+    .sidehead h2{font-size:16px;margin:5px 0}
+    .sidehead p{display:none}
+    .map-toolbar{top:11px;left:10px;right:10px}
+    .filter-card{flex:1;min-width:0;padding:9px}
+    .filter-card label{display:none}
+    .filter-card select{max-width:100%;min-width:0;width:100%;font-size:12px}
+    .circle-button{width:38px;height:38px;font-size:17px}
+    .map-badge{left:10px;bottom:30px;right:10px;padding:10px 11px}
+    .map-badge strong{font-size:12px}
+    .map-badge p{font-size:10px}
+    .mobile-toggle{display:grid}
+    .toolbar-actions .circle-button:nth-child(1){display:none}
+    .sidenote{display:none}
+  }
+  @media(max-width:460px){.brandtitle{font-size:12px}.brandmeta{font-size:8px}.filter-card select{font-size:11px}.map-badge{max-width:88%}.map-badge p{display:none}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brandlogo" aria-hidden="true">&#128506;&#65039;</div><div>
+      <div class="brandtitle">Bản đồ số du lịch Trà Vinh</div>
+      <div class="brandmeta">Sản phẩm nghiên cứu khoa học học sinh năm 2026</div>
+    </div></div>
+    <div class="school">Trường THPT chuyên Nguyễn Thiện Thành<small>TR&#192; VINH &#183; 2026</small></div>
+  </header>
+  <main class="body">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidehead">
+        <span class="eyebrow">DIGITAL TOURISM MAP</span>
+        <h2>Danh sách địa điểm</h2>
+        <p>Chọn ghim trên bản đồ để xem nội dung và chỉ đường.</p>
+        <label class="searchrow"><span aria-hidden="true">&#9906;</span><input id="search" type="search" placeholder="Tìm địa điểm..." aria-label="Tìm địa điểm..."></label>
+        <div id="groupChips" class="group-pills"></div>
+      </div>
+      <div class="points-meta"><span id="resultText">12 điểm đang hiển thị</span><span>TV01 - TV12</span></div>
+      <div id="placesList" class="pointslist" aria-live="polite"></div>
+      <div class="sidenote">Vị trí và nội dung cần được nhóm khảo sát xác minh trước khi công bố.</div>
+    </aside>
+    <section class="mapshell" aria-label="Bản đồ số du lịch Trà Vinh">
+      <div id="map" class="dark"></div>
+      <div class="map-toolbar">
+        <div class="filter-card"><label for="groupFilter">Lọc theo cụm</label><select id="groupFilter" aria-label="Lọc theo cụm"></select></div>
+        <div class="toolbar-actions">
+          <button class="circle-button" id="resetButton" title="Hiện tất cả" aria-label="Hiện tất cả">&#8962;</button>
+          <button class="circle-button" id="themeButton" title="Chế độ sáng" aria-label="Chế độ sáng">&#9788;</button>
+          <button class="circle-button" id="fullscreenButton" title="Toàn màn hình" aria-label="Toàn màn hình">&#9974;</button>
+          <button class="circle-button mobile-toggle" id="mobileListButton" title="Mở danh sách" aria-label="Mở danh sách">&#9776;</button>
+        </div>
+      </div>
+      <div class="map-badge"><strong><span id="mapCount">12</span> điểm đang hiển thị</strong><p>Vị trí và nội dung cần được nhóm khảo sát xác minh trước khi công bố.</p></div>
+    </section>
+  </main>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="du_lieu.js"></script>
+<script>
+'use strict';
+const UI = {"TITLE": "B\u1ea3n \u0111\u1ed3 s\u1ed1 du l\u1ecbch Tr\u00e0 Vinh", "SUB": "S\u1ea3n ph\u1ea9m nghi\u00ean c\u1ee9u khoa h\u1ecdc h\u1ecdc sinh n\u0103m 2026", "SCHOOL": "Tr\u01b0\u1eddng THPT chuy\u00ean Nguy\u1ec5n Thi\u1ec7n Th\u00e0nh", "ALL": "T\u1ea5t c\u1ea3 c\u00e1c c\u1ee5m", "ALL12": "12 \u0111i\u1ec3m nghi\u00ean c\u1ee9u", "PLACES": "Danh s\u00e1ch \u0111\u1ecba \u0111i\u1ec3m", "SEARCH": "T\u00ecm \u0111\u1ecba \u0111i\u1ec3m...", "GROUPS": "L\u1ecdc theo c\u1ee5m", "RESET": "Hi\u1ec7n t\u1ea5t c\u1ea3", "LIGHT": "Ch\u1ebf \u0111\u1ed9 s\u00e1ng", "DARK": "Ch\u1ebf \u0111\u1ed9 t\u1ed1i", "FULL": "To\u00e0n m\u00e0n h\u00ecnh", "MOBILE": "Danh s\u00e1ch \u0111i\u1ec3m", "NOTE": "V\u1ecb tr\u00ed v\u00e0 n\u1ed9i dung c\u1ea7n \u0111\u01b0\u1ee3c nh\u00f3m kh\u1ea3o s\u00e1t x\u00e1c minh tr\u01b0\u1edbc khi c\u00f4ng b\u1ed1.", "HELP": "Ch\u1ecdn ghim tr\u00ean b\u1ea3n \u0111\u1ed3 \u0111\u1ec3 xem n\u1ed9i dung v\u00e0 ch\u1ec9 \u0111\u01b0\u1eddng.", "COUNT": "\u0111i\u1ec3m \u0111ang hi\u1ec3n th\u1ecb", "GO": "Ch\u1ec9 \u0111\u01b0\u1eddng b\u1eb1ng Google Maps", "NOIMG": "\u1ea2nh kh\u1ea3o s\u00e1t th\u1ef1c \u0111\u1ecba ch\u01b0a \u0111\u01b0\u1ee3c b\u1ed5 sung.", "POSITION": "T\u1ecda \u0111\u1ed9 theo h\u1ed3 s\u01a1 nghi\u00ean c\u1ee9u, ch\u01b0a x\u00e1c minh \u0111\u1ed9c l\u1eadp.", "NORESULT": "Kh\u00f4ng t\u00ecm th\u1ea5y \u0111\u1ecba \u0111i\u1ec3m ph\u00f9 h\u1ee3p.", "COPY": "Sao ch\u00e9p t\u1ecda \u0111\u1ed9", "COPYOK": "\u0110\u00e3 sao ch\u00e9p t\u1ecda \u0111\u1ed9", "ONE": "\u0111i\u1ec3m", "LIST": "M\u1edf danh s\u00e1ch"};
+const GROUPS = {"C\u1ee5m 1": {"label": "C\u1ee5m 1 - V\u0103n h\u00f3a Khmer", "color": "#a78bfa"}, "C\u1ee5m 2": {"label": "C\u1ee5m 2 - L\u00e0ng ngh\u1ec1 v\u00e0 di s\u1ea3n", "color": "#f59e0b"}, "C\u1ee5m 3": {"label": "C\u1ee5m 3 - D\u1eeba s\u00e1p", "color": "#34d399"}, "C\u1ee5m 4": {"label": "C\u1ee5m 4 - Sinh th\u00e1i v\u00e0 ngh\u1ec1 truy\u1ec1n th\u1ed1ng", "color": "#60a5fa"}};
+const POINTS = Array.isArray(window.TRAVINH_PLACES) ? window.TRAVINH_PLACES : [];
+const $ = (id)=>document.getElementById(id);
+const safe = (val)=>String(val??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = (value)=>String(value || '').toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replaceAll('\u0111','d');
+let selectedGroup = 'all';
+let searchTerm = '';
+let selectedId = null;
+let darkMode = true;
+const map = L.map('map', {zoomControl:false, preferCanvas:true}).setView([9.79,106.25],10);
+L.control.zoom({position:'bottomright'}).addTo(map);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>'}).addTo(map);
+const markers = new Map();
+for (const point of POINTS) {
+  if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) continue;
+  const clr = GROUPS[point.group]?.color || '#5bd8d2';
+  const icon = L.divIcon({className:'marker-wrap',html:`<div class="tour-pin" style="--group:${safe(clr)}">${safe(point.icon || '')}</div>`,iconSize:[42,45],iconAnchor:[21,43],popupAnchor:[0,-34]});
+  const marker = L.marker([point.lat,point.lng],{icon,title:point.name});
+  marker.bindPopup(()=>renderPopup(point),{autoPanPaddingTopLeft:[20,70],maxWidth:330});
+  marker.on('click',()=>{selectedId=point.id; drawList();});
+  markers.set(point.id,marker);
+}
+function routeURL(p){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.lat+','+p.lng);}
+function renderPopup(p){
+  const groupName = GROUPS[p.group]?.label||p.group;
+  const img = p.image ? `<img class="popimg" alt="${safe(p.name)}" src="${safe(p.image)}">` : '';
+  return `<div class="popmeta">${safe(p.id)} &bull; ${safe(groupName)}</div><div class="poptitle">${safe(p.name)}</div>${img}<div class="popdesc">${safe(p.description)}</div><div class="popnote">${safe(UI.POSITION)} ${!p.image?safe(UI.NOIMG):''}</div><a class="popbtn" href="${routeURL(p)}" target="_blank" rel="noopener noreferrer">&#10148; ${safe(UI.GO)}</a>`;
+}
+function activePoints(){return POINTS.filter(p => (selectedGroup==='all'||p.group===selectedGroup) && norm(p.name+' '+p.description+' '+p.id).includes(norm(searchTerm)));}
+function drawList(){
+ const items=activePoints();
+ $('resultText').textContent=items.length+' '+UI.COUNT;
+ $('mapCount').textContent=String(items.length);
+ const list=$('placesList');list.replaceChildren();
+ if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=UI.NORESULT;list.appendChild(empty);return;}
+ for(const p of items){
+   const el=document.createElement('button');el.type='button';el.className='location'+(selectedId===p.id?' selected':'');
+   el.style.setProperty('--group',GROUPS[p.group]?.color||'#5bd8d2');
+   el.innerHTML=`<span class="pin-small">${safe(p.icon)}</span><span class="loc-body"><div class="locid">${safe(p.id)} &bull; ${safe(p.group)}</div><div class="loc-title">${safe(p.name)}</div><div class="locsub">${safe(p.description)}</div></span>`;
+   el.onclick=()=>focusPoint(p.id);
+   list.appendChild(el);
+ }
+}
+function updateMap(zoomToResults=true){
+ const pts=activePoints();const act=new Set(pts.map(p=>p.id));
+ for(const p of POINTS){const marker=markers.get(p.id);if(!marker)continue; if(act.has(p.id)){if(!map.hasLayer(marker)) marker.addTo(map);}else if(map.hasLayer(marker)){map.removeLayer(marker);}}
+ if(selectedId&&!act.has(selectedId)){selectedId=null;map.closePopup();}
+ drawList();
+ if(zoomToResults && pts.length){const bounds=L.latLngBounds(pts.map(p=>[p.lat,p.lng]));map.fitBounds(bounds,{padding:[54,54],maxZoom:13,animate:false});}
+}
+function focusPoint(id){
+ const p=POINTS.find(o=>o.id===id);if(!p||!markers.has(id))return;
+ selectedId=id;
+ map.flyTo([p.lat,p.lng],Math.max(13,map.getZoom()),{duration:.5});
+ markers.get(id).openPopup();drawList();
+ $('sidebar').classList.remove('mobile-open');setTimeout(()=>map.invalidateSize(),220);
+}
+function buildFilters(){
+ const select=$('groupFilter');const chips=$('groupChips');
+ const entries=[['all',UI.ALL],...Object.entries(GROUPS).map(([key,v])=>[key,v.label])];
+ for(const [key,label] of entries){
+  const opt=document.createElement('option');opt.value=key;opt.textContent=label;select.appendChild(opt);
+  const btn=document.createElement('button');btn.className='chip'+(key==='all'?' active':'');btn.type='button';btn.dataset.group=key;
+  const dot=document.createElement('span');dot.className='mini-dot';dot.style.setProperty('--dot',key==='all'?'#54dacb':GROUPS[key].color);
+  const title=document.createElement('span');title.textContent=key==='all'?UI.ALL:key+' ('+POINTS.filter(p=>p.group===key).length+')';
+  btn.append(dot,title);btn.onclick=()=>setGroup(key);chips.appendChild(btn);
+ }
+ select.onchange=()=>setGroup(select.value);
+}
+function setGroup(group){selectedGroup=group;$('groupFilter').value=group;document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.dataset.group===group));updateMap();}
+function reset(){searchTerm='';$('search').value='';setGroup('all');$('sidebar').classList.remove('mobile-open');}
+$('search').addEventListener('input',e=>{searchTerm=e.target.value;updateMap(false);});
+$('resetButton').onclick=reset;
+$('themeButton').onclick=()=>{darkMode=!darkMode;$('map').classList.toggle('dark',darkMode);$('themeButton').textContent=darkMode?'\u2600':'\u263e';$('themeButton').title=darkMode?UI.LIGHT:UI.DARK;$('themeButton').setAttribute('aria-label',$('themeButton').title);};
+$('fullscreenButton').onclick=()=>{if(!document.fullscreenElement){document.documentElement.requestFullscreen?.().catch(()=>{});}else{document.exitFullscreen?.().catch(()=>{});}};
+$('mobileListButton').onclick=()=>{$('sidebar').classList.toggle('mobile-open');};
+map.on('click',()=>{selectedId=null;drawList();$('sidebar').classList.remove('mobile-open');});
+buildFilters();updateMap();
+window.addEventListener('resize',()=>map.invalidateSize());
+</script>
+</body>
+</html>
